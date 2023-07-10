@@ -18,4 +18,8 @@ npm run serve
 
 # 参考资料
 
-[https://chuoling.github.io/mediapipe](https://chuoling.github.io/mediapipe)
+- <https://chuoling.github.io/mediapipe>
+
+- <https://developers.google.cn/mediapipe/solutions/guide>
+
+![手部检测结果数组参考](./docs/hand-landmarks.png)
