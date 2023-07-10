@@ -1,6 +1,7 @@
 <template>
   <div class="hands">
     <viewer ref="controller" />
+    <div></div>
   </div>
 </template>
 
@@ -24,7 +25,8 @@ export default {
   },
   mounted() {
     console.log("@mediapipe/hands", Hands);
-    const hands = this.init();
+    const [hands, onResults] = this.init();
+    onResults((results) => {});
   },
   methods: {
     init() {
@@ -40,28 +42,6 @@ export default {
       const canvas = this.$refs.controller.getCanvas();
       const canvasCtx = canvas.getContext("2d");
 
-      // 监听检测返回的结果
-      hands.onResults((results) => {
-        // // 打印检测结果
-        // console.log('results:', results)
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-        if (results.multiHandLandmarks) {
-          for (const landmarks of results.multiHandLandmarks) {
-            Drawing.drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, {
-              color: "#00FF00",
-              lineWidth: 5,
-            });
-            Drawing.drawLandmarks(canvasCtx, landmarks, {
-              color: "#FF0000",
-              lineWidth: 2,
-            });
-          }
-        }
-        canvasCtx.restore();
-      });
-
       const camera = new Camera(video, {
         // 每帧进行检测
         onFrame: async () => {
@@ -70,7 +50,43 @@ export default {
       });
       camera.start();
 
-      return hands;
+      // 把检测结果绘制到canvas中
+      const drawResults = (results) => {
+        // // 打印检测结果
+        // console.log('results:', results)
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+        if (results.multiHandLandmarks) {
+          for (const landmarks of results.multiHandLandmarks) {
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              Hands.HAND_CONNECTIONS,
+              {
+                color: "#00FF00",
+                lineWidth: 5,
+              }
+            );
+            Drawing.drawLandmarks(canvasCtx, landmarks, {
+              color: "#FF0000",
+              lineWidth: 2,
+            });
+          }
+        }
+        canvasCtx.restore();
+      };
+
+      return [
+        hands,
+        (callback = (results) => {}) => {
+          // 监听检测返回的结果
+          hands.onResults((results) => {
+            drawResults(results);
+            callback(results);
+          });
+        },
+      ];
     },
   },
 };

@@ -16,8 +16,10 @@ export default {
   name: "Viewer",
   data() {
     return {
-      width: 640,
-      height: 480,
+      // width: 640,
+      // height: 480,
+      width: 320,
+      height: 240,
     };
   },
   methods: {
@@ -33,9 +35,11 @@ export default {
 
 <style lang="scss" scoped>
 .viewer {
-  display: flex;
-  justify-content: space-evenly;
   width: 100%;
   min-width: 1300px;
+
+  .output_canvas {
+    margin-left: 20px;
+  }
 }
 </style>

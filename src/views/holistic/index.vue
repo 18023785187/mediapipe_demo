@@ -28,7 +28,10 @@ export default {
   },
   mounted() {
     console.log("@mediapipe/holistic", Holistic);
-    const holistic = this.init();
+    const [holistic, onResults] = this.init();
+    onResults((results) => {
+      // todo
+    });
   },
   methods: {
     init() {
@@ -44,8 +47,16 @@ export default {
       const canvas = this.$refs.controller.getCanvas();
       const canvasCtx = canvas.getContext("2d");
 
-      // 监听检测返回的结果
-      holistic.onResults((results) => {
+      const camera = new Camera(video, {
+        // 每帧进行检测
+        onFrame: async () => {
+          await holistic.send({ image: video });
+        },
+      });
+      camera.start();
+
+      // 把检测结果绘制到canvas中
+      const drawResults = (results) => {
         // // 打印检测结果
         // console.log('results:', results)
         canvasCtx.save();
@@ -119,17 +130,18 @@ export default {
           lineWidth: 2,
         });
         canvasCtx.restore();
-      });
+      };
 
-      const camera = new Camera(video, {
-        // 每帧进行检测
-        onFrame: async () => {
-          await holistic.send({ image: video });
+      return [
+        holistic,
+        (callback = (results) => {}) => {
+          // 监听检测返回的结果
+          holistic.onResults((results) => {
+            drawResults(results);
+            callback(results);
+          });
         },
-      });
-      camera.start();
-
-      return holistic;
+      ];
     },
   },
 };

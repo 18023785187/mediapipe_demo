@@ -26,7 +26,10 @@ export default {
   },
   mounted() {
     console.log("@mediapipe/face_mesh", FaceMesh);
-    const faceMesh = this.init();
+    const [faceMesh, onResults] = this.init();
+    onResults((results) => {
+      // todo
+    })
   },
   methods: {
     init() {
@@ -42,53 +45,6 @@ export default {
       const canvas = this.$refs.controller.getCanvas();
       const canvasCtx = canvas.getContext("2d");
 
-      // 监听检测返回的结果
-      faceMesh.onResults((results) => {
-        // // 打印检测结果
-        // console.log('results:', results)
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-        if (results.multiFaceLandmarks) {
-          for (const landmarks of results.multiFaceLandmarks) {
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_TESSELATION, {
-              color: "#C0C0C070",
-              lineWidth: 1,
-            });
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_RIGHT_EYE, {
-              color: "#FF3030",
-            });
-            Drawing.drawConnectors(
-              canvasCtx,
-              landmarks,
-              FaceMesh.FACEMESH_RIGHT_EYEBROW,
-              {
-                color: "#FF3030",
-              }
-            );
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_RIGHT_IRIS, {
-              color: "#FF3030",
-            });
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_LEFT_EYE, {
-              color: "#30FF30",
-            });
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_LEFT_EYEBROW, {
-              color: "#30FF30",
-            });
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_LEFT_IRIS, {
-              color: "#30FF30",
-            });
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_FACE_OVAL, {
-              color: "#E0E0E0",
-            });
-            Drawing.drawConnectors(canvasCtx, landmarks, FaceMesh.FACEMESH_LIPS, {
-              color: "#E0E0E0",
-            });
-          }
-        }
-        canvasCtx.restore();
-      });
-
       const camera = new Camera(video, {
         // 每帧进行检测
         onFrame: async () => {
@@ -97,7 +53,103 @@ export default {
       });
       camera.start();
 
-      return faceMesh;
+      // 把检测结果绘制到canvas中
+      const drawResults = (results) => {
+        // // 打印检测结果
+        // console.log('results:', results)
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+        if (results.multiFaceLandmarks) {
+          for (const landmarks of results.multiFaceLandmarks) {
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_TESSELATION,
+              {
+                color: "#C0C0C070",
+                lineWidth: 1,
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_RIGHT_EYE,
+              {
+                color: "#FF3030",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_RIGHT_EYEBROW,
+              {
+                color: "#FF3030",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_RIGHT_IRIS,
+              {
+                color: "#FF3030",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_LEFT_EYE,
+              {
+                color: "#30FF30",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_LEFT_EYEBROW,
+              {
+                color: "#30FF30",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_LEFT_IRIS,
+              {
+                color: "#30FF30",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_FACE_OVAL,
+              {
+                color: "#E0E0E0",
+              }
+            );
+            Drawing.drawConnectors(
+              canvasCtx,
+              landmarks,
+              FaceMesh.FACEMESH_LIPS,
+              {
+                color: "#E0E0E0",
+              }
+            );
+          }
+        }
+        canvasCtx.restore();
+      };
+
+      return [
+        faceMesh,
+        (callback = (results) => {}) => {
+          // 监听检测返回的结果
+          faceMesh.onResults((results) => {
+            drawResults(results);
+            callback(results);
+          });
+        },
+      ];
     },
   },
 };
