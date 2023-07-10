@@ -32,5 +32,9 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "engines": {
+    "node": "18.16.1",
+    "npm": "9.5.1"
+  }
 }

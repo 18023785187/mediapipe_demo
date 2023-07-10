@@ -33,7 +33,7 @@ export default {
       // 载入重要文件，会以script标签的形式插入
       const faceMesh = new FaceMesh.FaceMesh({
         locateFile: (file) => {
-          return `${this.$MEDIAPIPE_MODEL_RESOURCE}/face-mesh/${file}`;
+          return `${this.$MEDIAPIPE_MODEL_RESOURCE}/face_mesh/${file}`;
         },
       });
       faceMesh.setOptions(this.options);

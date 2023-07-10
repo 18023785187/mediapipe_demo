@@ -11,8 +11,9 @@ Vue.use(ElementUI);
 
 Vue.config.productionTip = false
 
-Vue.prototype.$MEDIAPIPE_MODEL_RESOURCE = process.env.NODE_ENV === 'development' ?
-  '/@mediapipe' : 'https://cdn.jsdelivr.net/npm/@mediapipe'
+// Vue.prototype.$MEDIAPIPE_MODEL_RESOURCE = process.env.NODE_ENV === 'development' ?
+//   '/@mediapipe' : 'https://cdn.jsdelivr.net/npm/@mediapipe'
+Vue.prototype.$MEDIAPIPE_MODEL_RESOURCE='https://cdn.jsdelivr.net/npm/@mediapipe'
 
 new Vue({
   router,
