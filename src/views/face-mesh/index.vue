@@ -1,6 +1,7 @@
 <template>
   <div class="face-mesh">
     <viewer ref="controller" />
+    <div ref="container3d" class="container3d"></div>
   </div>
 </template>
 
@@ -9,6 +10,8 @@ import * as FaceMesh from "@mediapipe/face_mesh";
 import { Camera } from "@mediapipe/camera_utils";
 // import * as Control from "@mediapipe/control_utils";
 import * as Drawing from "@mediapipe/drawing_utils";
+import renderMorphTargetsFace from "./renderMorphTargetsFace";
+import faceConnect from "./faceConnect";
 
 export default {
   name: "FaceMesh",
@@ -24,12 +27,14 @@ export default {
       },
     };
   },
-  mounted() {
+  async mounted() {
     console.log("@mediapipe/face_mesh", FaceMesh);
     const [faceMesh, onResults] = this.init();
+    // 创建3d模型
+    const object3D = await renderMorphTargetsFace(this.$refs.container3d);
     onResults((results) => {
-      // todo
-    })
+      faceConnect(object3D, results);
+    });
   },
   methods: {
     init() {
@@ -155,4 +160,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.container3d {
+  width: 500px;
+  height: 500px;
+}
+</style>
